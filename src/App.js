@@ -20,7 +20,10 @@ import {
   CheckCircle,
   AlertCircle,
   Plus,
-  Search
+  Search,
+  Eye,
+  EyeOff,
+  X
 } from 'lucide-react';
 
 const EduFlow = () => {
@@ -28,6 +31,8 @@ const EduFlow = () => {
   const [userRole, setUserRole] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedSubject, setSelectedSubject] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('');
 
   // Mock data for demonstration
   const studentData = {
@@ -56,29 +61,176 @@ const EduFlow = () => {
     ]
   };
 
+  // Login Component
+  const LoginModal = () => {
+    const [isLogin, setIsLogin] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState({
+      email: '',
+      password: '',
+      confirmPassword: '',
+      name: ''
+    });
+
+    const handleInputChange = (e) => {
+      setFormData({
+        ...formData,
+        [e.target.name]: e.target.value
+      });
+    };
+
+    const handleSubmit = () => {
+      // Simulate login/signup process
+      setUserRole(selectedRole);
+      setCurrentUser(selectedRole === 'student' ? studentData : teacherData);
+      setCurrentPage('dashboard');
+      setShowLogin(false);
+    };
+
+    const closeModal = () => {
+      setShowLogin(false);
+      setSelectedRole('');
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative">
+          <button
+            onClick={closeModal}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              {selectedRole === 'student' ? (
+                <GraduationCap className="w-16 h-16 text-blue-500" />
+              ) : (
+                <User className="w-16 h-16 text-blue-500" />
+              )}
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+              {isLogin ? 'Welcome Back' : 'Create Account'}
+            </h2>
+            <p className="text-gray-600 capitalize">
+              {isLogin ? 'Sign in to your' : 'Create your'} {selectedRole} account
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {!isLogin && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your full name"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {!isLogin && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Confirm your password"
+                />
+              </div>
+            )}
+
+            <button
+              onClick={handleSubmit}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            >
+              {isLogin ? 'Sign In' : 'Create Account'}
+            </button>
+          </div>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              {isLogin ? "Don't have an account?" : "Already have an account?"}
+              <button
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-blue-600 hover:text-blue-700 font-medium ml-1"
+              >
+                {isLogin ? 'Sign up' : 'Sign in'}
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Authentication Component
   const AuthScreen = () => {
-    const [isLogin, setIsLogin] = useState(true);
-    const [selectedRole, setSelectedRole] = useState('');
-
-    const handleAuth = (role) => {
-      setUserRole(role);
-      setCurrentUser(role === 'student' ? studentData : teacherData);
-      setCurrentPage('dashboard');
+    const handleRoleSelection = (role) => {
+      setSelectedRole(role);
+      setShowLogin(true);
     };
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">EduFlow</h1>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Uttam Vidyam</h1>
             <p className="text-gray-600">Your Learning Journey Starts Here</p>
           </div>
 
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <button
-                onClick={() => handleAuth('student')}
+                onClick={() => handleRoleSelection('student')}
                 className="p-6 border-2 border-blue-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all group"
               >
                 <GraduationCap className="w-12 h-12 text-blue-500 mx-auto mb-3 group-hover:scale-110 transition-transform" />
@@ -87,7 +239,7 @@ const EduFlow = () => {
               </button>
 
               <button
-                onClick={() => handleAuth('teacher')}
+                onClick={() => handleRoleSelection('teacher')}
                 className="p-6 border-2 border-blue-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all group"
               >
                 <User className="w-12 h-12 text-blue-500 mx-auto mb-3 group-hover:scale-110 transition-transform" />
@@ -103,6 +255,8 @@ const EduFlow = () => {
             </div>
           </div>
         </div>
+
+        {showLogin && <LoginModal />}
       </div>
     );
   };
@@ -115,7 +269,6 @@ const EduFlow = () => {
         <p className="opacity-90">Ready to continue your learning journey?</p>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
@@ -151,7 +304,6 @@ const EduFlow = () => {
         </div>
       </div>
 
-      {/* Subject Progress */}
       <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
         <h3 className="text-xl font-bold text-slate-800 mb-4">Subject Progress</h3>
         <div className="space-y-4">
@@ -175,7 +327,6 @@ const EduFlow = () => {
         </div>
       </div>
 
-      {/* AI Suggestions */}
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6 border border-purple-100">
         <div className="flex items-start space-x-3">
           <Brain className="w-6 h-6 text-purple-600 mt-1" />
@@ -232,7 +383,6 @@ const EduFlow = () => {
         ))}
       </div>
 
-      {/* Results Section */}
       <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
         <h3 className="text-xl font-bold text-slate-800 mb-4">Recent Results</h3>
         <div className="space-y-3">
@@ -264,7 +414,147 @@ const EduFlow = () => {
     </div>
   );
 
-  // Teacher Dashboard Components
+  // Teacher PPT Creator Component
+  const TeacherPPTCreator = () => {
+    const [uploadedFile, setUploadedFile] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [extractedText, setExtractedText] = useState('');
+    const [pptStatus, setPptStatus] = useState('');
+
+    const handleFileUpload = async (event) => {
+      const file = event.target.files[0];
+      if (file && (file.type === 'application/pdf' || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+        setUploadedFile(file);
+        setIsProcessing(true);
+        setPptStatus('Extracting text from document...');
+        
+        // Simulate text extraction process
+        setTimeout(() => {
+          setExtractedText('Sample extracted content from your document. This would contain the actual text from your PDF or DOCX file.');
+          setPptStatus('Text extracted successfully! Ready to generate PPT.');
+          setIsProcessing(false);
+        }, 2000);
+      } else {
+        alert('Please upload only PDF or DOCX files');
+      }
+    };
+
+    const generatePPT = () => {
+      setIsProcessing(true);
+      setPptStatus('Generating PPT with AI...');
+      
+      // Simulate PPT generation
+      setTimeout(() => {
+        setPptStatus('PPT generated successfully! Download ready.');
+        setIsProcessing(false);
+      }, 3000);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-xl p-6 text-white">
+          <h2 className="text-2xl font-bold mb-2">PPT Creator</h2>
+          <p className="opacity-90">Upload documents and create presentations automatically</p>
+        </div>
+
+        {/* Upload Section */}
+        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+          <h3 className="text-xl font-bold text-slate-800 mb-4">Upload Document</h3>
+          
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h4 className="text-lg font-medium text-slate-700 mb-2">Upload PDF or DOCX file</h4>
+            <p className="text-gray-500 mb-4">Drag and drop your file here, or click to browse</p>
+            
+            <input
+              type="file"
+              accept=".pdf,.docx"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="file-upload"
+            />
+            <label
+              htmlFor="file-upload"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer inline-block"
+            >
+              Choose File
+            </label>
+          </div>
+
+          {uploadedFile && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center space-x-3">
+                <FileText className="w-8 h-8 text-blue-600" />
+                <div>
+                  <p className="font-medium text-slate-800">{uploadedFile.name}</p>
+                  <p className="text-sm text-gray-600">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Processing Status */}
+        {pptStatus && (
+          <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <h3 className="text-xl font-bold text-slate-800 mb-4">Processing Status</h3>
+            <div className="flex items-center space-x-3">
+              {isProcessing && (
+                <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              )}
+              <p className="text-slate-700">{pptStatus}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Extracted Text Preview */}
+        {extractedText && (
+          <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <h3 className="text-xl font-bold text-slate-800 mb-4">Extracted Content Preview</h3>
+            <div className="bg-gray-50 p-4 rounded-lg border max-h-48 overflow-y-auto">
+              <p className="text-sm text-slate-700">{extractedText}</p>
+            </div>
+            
+            <div className="mt-4 flex space-x-3">
+              <button
+                onClick={generatePPT}
+                disabled={isProcessing}
+                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isProcessing ? 'Generating...' : 'Generate PPT with AI'}
+              </button>
+              <button className="border border-gray-300 text-slate-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                Edit Content
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Python Backend Integration Info */}
+        <div className="bg-yellow-50 rounded-xl p-6 border border-yellow-200">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-6 h-6 text-yellow-600 mt-1" />
+            <div>
+              <h3 className="font-bold text-slate-800 mb-2">Backend Integration Required</h3>
+              <p className="text-slate-700 text-sm mb-3">
+                This feature requires Python backend with the following libraries:
+              </p>
+              <div className="bg-white p-3 rounded border text-xs font-mono">
+                <p># Required Python packages:</p>
+                <p>pip install PyPDF2 python-docx python-pptx google-generativeai</p>
+                <br />
+                <p># Text extraction functions needed:</p>
+                <p>- extract_pdf_text() using PyPDF2</p>
+                <p>- extract_docx_text() using python-docx</p>
+                <p>- generate_ppt_content() using Gemini API</p>
+                <p>- create_ppt() using python-pptx</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
   const TeacherDashboard = () => (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
@@ -272,7 +562,6 @@ const EduFlow = () => {
         <p className="opacity-90">Manage your classes and track student progress</p>
       </div>
 
-      {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
@@ -307,7 +596,6 @@ const EduFlow = () => {
         </div>
       </div>
 
-      {/* Classes Overview */}
       <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-slate-800">Your Classes</h3>
@@ -344,7 +632,6 @@ const EduFlow = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-100">
           <div className="flex items-start space-x-3">
@@ -392,6 +679,7 @@ const EduFlow = () => {
     const teacherNavItems = [
       { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
       { id: 'classes', label: 'My Classes', icon: Users },
+      { id: 'ppt', label: 'PPT Creator', icon: FileText },
       { id: 'assessments', label: 'Assessments', icon: FileText },
       { id: 'analytics', label: 'Analytics', icon: TrendingUp },
       { id: 'settings', label: 'Settings', icon: Settings }
@@ -402,7 +690,7 @@ const EduFlow = () => {
     return (
       <div className="bg-white shadow-lg h-screen w-64 fixed left-0 top-0 z-50">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-slate-800">EduFlow</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Uttam Vidyam</h1>
           <p className="text-sm text-gray-600 capitalize">{userRole} Portal</p>
         </div>
         
@@ -450,11 +738,20 @@ const EduFlow = () => {
             return <StudentDashboard />;
           case 'classroom':
             return <StudentClassroom />;
+          case 'ai-tutor':
+            return <StudentAITutor />;
           default:
             return <StudentDashboard />;
         }
       } else {
-        return <TeacherDashboard />;
+        switch (currentPage) {
+          case 'dashboard':
+            return <TeacherDashboard />;
+          case 'ppt':
+            return <TeacherPPTCreator />;
+          default:
+            return <TeacherDashboard />;
+        }
       }
     };
 
